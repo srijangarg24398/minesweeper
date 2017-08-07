@@ -5,7 +5,10 @@ self.addEventListener('install',function(event){
 				'/minesweeper.html',
 				'/minesweeper.css',
 				'/minesweeper.js',
-				'/additional.js'
+				'/additional.js',
+				'/images/boxes/*',
+				'/images/numbers/*',
+				'/images/reactions/*'
 			])
 		})
 	)

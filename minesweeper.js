@@ -52,7 +52,7 @@ function designPage(){
     "flex-direction":"column",
     "margin-top":"30px"
   })/*.text("Select the grid size")*//*.append(document.createElement('form').append('<select>',{'name':'grid'}))*/
-  designBlank(15,15,40);
+  designBlank(15,20,40);
 }
 function getBlanks(el){
   var blanks=[]
@@ -223,11 +223,11 @@ function showAdjacentBlanks(rows,columns,el,cell,i,j,dir1,dir2){
   
 }
 function designBlank(rows,columns,mines_no){
-  $('main > div').append(document.createElement('div')).css({"display":"flex","justify-content":"center"})
+  $('main > div').append(document.createElement('div')).css({"display":"flex","justify-content":"space-around","align-items":"center"})
   $('main > div > div')[0].id="game-container"
   $('div#game-container').css({
     "display":"flex",
-    "width":columns*29+"px",
+    "width":columns*28+"px",
     "justify-content":"space-between",
     "flex-direction":"column",
     "margin-top":"30px",
