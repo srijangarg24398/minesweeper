@@ -6,9 +6,11 @@ function makeArray(rows,columns,el){
       cell[i][j]=""
       var yo=$(el)[i*columns+j]
       yo.innerText=""
-      console.log($(yo).get(0))
+      // console.log($(yo).get(0))
       $(yo).get(0).style.background="url(images/numbers/0.png) no-repeat"
       $(yo).get(0).style.backgroundSize="100% 100%"
+      // $(yo).on('click')
+      $(yo).on('click')
       // ($('<img src="images/boxes/uncovered.png">'))
       // $(el)[i*rows+j].text("")
     }
@@ -49,8 +51,8 @@ function designPage(){
     // "border":"2px solid black",
     "flex-direction":"column",
     "margin-top":"30px"
-  }).text("Select the grid size")/*.append(document.createElement('form').append('<select>',{'name':'grid'}))*/
-  designBlank(15,15,20);
+  })/*.text("Select the grid size")*//*.append(document.createElement('form').append('<select>',{'name':'grid'}))*/
+  designBlank(15,15,40);
 }
 function getBlanks(el){
   var blanks=[]
@@ -92,6 +94,9 @@ function showAllMines(rows,columns,el,cell){
       }
     }
   }
+  $('button#reactions').css({"background":"url(images/reactions/lost.png) no-repeat","backgroundSize":"100% 100%"})
+  $(el).off('click')
+  // $(el).click(function(){return false})
 }
 function fillNumbers(rows,columns,el){
   var yo=$(el)
@@ -197,19 +202,56 @@ function coverAll(rows,columns,el)
     }
   }
 }
+function showAdjacentBlanks(rows,columns,el,cell,i,j,dir1,dir2){
+  if (cell[i][j]==""){
+    yo=$(el)
+    yo.get(i*columns+j).style.background="url(images/numbers/0.png) no-repeat"
+    yo.get(i*columns+j).style.backgroundSize="100% 100%"
+    if (dir1!=2 && j>0 && cell[i][j-1]==""){  //left
+      showAdjacentBlanks(rows,columns,el,cell,i,j-1,1,dir2)
+    }
+    if (dir1!=1 && j<columns-1 && cell[i][j+1]==""){ //right
+      showAdjacentBlanks(rows,columns,el,cell,i,j+1,2,dir2)
+    }
+    if (dir2!=4 && i>0 && cell[i-1][j]==""){ //top
+      showAdjacentBlanks(rows,columns,el,cell,i-1,j,dir1,3)
+    }
+    if (dir2!=3 && i<rows-1 && cell[i+1][j]==""){ //bottom
+      showAdjacentBlanks(rows,columns,el,cell,i+1,j,dir1,4)
+    }
+  }
+  
+}
 function designBlank(rows,columns,mines_no){
   $('main > div').append(document.createElement('div')).css({"display":"flex","justify-content":"center"})
   $('main > div > div')[0].id="game-container"
   $('div#game-container').css({
     "display":"flex",
+    "width":"59%",
     "justify-content":"space-between",
     "flex-direction":"column",
     "margin-top":"30px",
     // "width":(columns*26*1.15)+1,
     // "backgroundColor":"black",
     // "padding":"1px",
-    // "border":"2px solid black"
+    "border":"15px solid #9c9c9c"
   })
+  $('div#game-container').append(document.createElement('header'))
+  $('div#game-container > header').css({
+    "height":"50px",
+    "backgroundColor":"#c8c8c8",
+    "display":"flex",
+    "justify-content":"center",
+    "align-items":"center",
+    "flex-direction":"row",
+  }).append($('<button id="reactions">'))
+  $('button#reactions').css({
+    "height":"45px",
+    "width":"45px",
+    "background":"url(images/reactions/released.png) no-repeat",
+    "backgroundSize":"100% 100%",
+  })
+
   for (var i=0;i<rows;i++){
     $('div#game-container').append(document.createElement('div'))
   }
@@ -240,19 +282,27 @@ function designBlank(rows,columns,mines_no){
   var cell=makeArray(rows,columns,yo)
   fillMines(rows,columns,yo,mines_no)
   fillNumbers(rows,columns,yo)
-  console.log(cell)
+  // console.log(cell)
   cell=fillArray(cell,rows,columns,yo)
   $('.grid-cell').css({"color":"transparent","font-size":"0"})
   $('.grid-cell').addClass('covered')
   $('.covered').css({"background":"url(images/boxes/uncovered.png) no-repeat","backgroundSize":"100% 100%"})
   // $('.covered').style.backgroundSize="100% 100%"
   // coverAll(rows,columns,'div.covered')
+  $('div.grid-cell').mousedown(function(){
+    $('button#reactions').css({"background":"url(images/reactions/pressed.png) no-repeat","backgroundSize":"100% 100%"})
+  })
   $('div.grid-cell').click(function(event){
     hi=$(this)
-    console.log($(this))
+    $('button#reactions').css({"background":"url(images/reactions/released.png) no-repeat","backgroundSize":"100% 100%"})
+    var irow=$('div.grid-rows')
+    hit_row=$(this).parent().index('.grid-rows')
+    hit_column=$(this).index()
+    console.log($(this).parent().index())
     count_temp=$(this).text()
     var img_text=""
     if (count_temp==""){
+      showAdjacentBlanks(rows,columns,yo,cell,hit_row,hit_column)
       img_text="numbers/0"
     }
     else if (count_temp > 0){
@@ -263,6 +313,30 @@ function designBlank(rows,columns,mines_no){
       img_text="boxes/redmine"
     }
      $(this).css({"background":"url(images/"+img_text+".png) no-repeat","backgroundSize":"100% 100%"})
+     // $(this).off('click')
+     $(this).click(function(argument) {
+        argument.preventDefault()
+     })
+     // $(this).on('click')
+  })
+  $('button#reactions').mousedown(function(event){
+    // event.preventDefault()
+    $(this).css({"background":"url(images/reactions/start.png) no-repeat","backgroundSize":"100% 100%"})
+  })
+  $('button#reactions').mouseup(function(event){
+    // event.preventDefault()
+    $(this).css({"background":"url(images/reactions/released.png) no-repeat","backgroundSize":"100% 100%"})
+    makeArray(rows,columns,yo)
+    fillMines(rows,columns,yo,mines_no)
+    fillNumbers(rows,columns,yo)
+    // console.log(cell)
+    cell=fillArray(cell,rows,columns,yo)
+    $('.grid-cell').addClass('covered')
+    $('.covered').css({"background":"url(images/boxes/uncovered.png) no-repeat","backgroundSize":"100% 100%"})
+    // $('div.grid-cell').each(function(){
+    //   $(this).on('click')
+    // })
+
   })
 }
 $(document).ready(function(){
