@@ -11,6 +11,9 @@ function makeArray(rows,columns,el){
       $(yo).get(0).style.backgroundSize="100% 100%"
       // $(yo).on('click')
       $(yo).on('click')
+      $(el).attr('leftDisabled',0)
+      $(el).attr('rightDisabled',0)
+
       // ($('<img src="images/boxes/uncovered.png">'))
       // $(el)[i*rows+j].text("")
     }
@@ -96,6 +99,8 @@ function showAllMines(rows,columns,el,cell){
   }
   $('button#reactions').css({"background":"url(images/reactions/lost.png) no-repeat","backgroundSize":"100% 100%"})
   $(el).off('click')
+  $(el).off('rightDisabled',1)
+  $(el).attr('leftDisabled',1)
   // $(el).click(function(){return false})
 }
 function fillNumbers(rows,columns,el){
@@ -207,6 +212,7 @@ function showAdjacentBlanks(rows,columns,el,cell,i,j,dir1,dir2){
     yo=$(el)
     yo.get(i*columns+j).style.background="url(images/numbers/0.png) no-repeat"
     yo.get(i*columns+j).style.backgroundSize="100% 100%"
+    yo.get(i*columns+j).setAttribute('leftDisabled',1)
     if (dir1!=2 && j>0 && cell[i][j-1]==""){  //left
       showAdjacentBlanks(rows,columns,el,cell,i,j-1,1,dir2)
     }
@@ -289,35 +295,66 @@ function designBlank(rows,columns,mines_no){
   $('.covered').css({"background":"url(images/boxes/uncovered.png) no-repeat","backgroundSize":"100% 100%"})
   // $('.covered').style.backgroundSize="100% 100%"
   // coverAll(rows,columns,'div.covered')
-  $('div.grid-cell').mousedown(function(){
+  document.oncontextmenu = function() {return false;};
+  // var countrtclicks=0
+  $('div.grid-cell').mousedown(function(e){
+    // $(this).attr("countrtclicks",0)
+    e.preventDefault()
     $('button#reactions').css({"background":"url(images/reactions/pressed.png) no-repeat","backgroundSize":"100% 100%"})
+    var leftDisabled=$(this).attr('leftDisabled')
+    if( e.button == 2 && (leftDisabled==0||leftDisabled==undefined)) { 
+      // countrtclicks++
+      attrval=$(this).attr('countrtclicks')
+      // rightDisabled=$(this).attr('rightDisabled')
+      // console.log(attrval)
+      if (attrval==0||attrval==undefined){
+        $(this).attr('countrtclicks',1)
+        $(this).attr('rightDisabled',1)
+        $(this).css({"background":"url(images/boxes/flag.png) no-repeat","backgroundSize":"100% 100%"})
+      }else if (attrval==1){
+        $(this).attr('countrtclicks',2)
+        $(this).attr('rightDisabled',0)
+        $(this).css({"background":"url(images/boxes/question.png) no-repeat","backgroundSize":"100% 100%"})
+      }else{
+        $(this).attr('countrtclicks',0)
+        $(this).attr('rightDisabled',0)
+        $(this).css({"background":"url(images/boxes/uncovered.png) no-repeat","backgroundSize":"100% 100%"})
+      }
+      return false; 
+    } 
+    else{
+    return true; }
   })
   $('div.grid-cell').click(function(event){
-    hi=$(this)
-    $('button#reactions').css({"background":"url(images/reactions/released.png) no-repeat","backgroundSize":"100% 100%"})
-    var irow=$('div.grid-rows')
-    hit_row=$(this).parent().index('.grid-rows')
-    hit_column=$(this).index()
-    console.log($(this).parent().index())
-    count_temp=$(this).text()
-    var img_text=""
-    if (count_temp==""){
-      showAdjacentBlanks(rows,columns,yo,cell,hit_row,hit_column)
-      img_text="numbers/0"
-    }
-    else if (count_temp > 0){
-      img_text="numbers/"+count_temp
-      // $(this).css({})
-    }else if (count_temp=="*"){
-      showAllMines(rows,columns,yo,cell)
-      img_text="boxes/redmine"
-    }
-     $(this).css({"background":"url(images/"+img_text+".png) no-repeat","backgroundSize":"100% 100%"})
-     // $(this).off('click')
-     $(this).click(function(argument) {
-        argument.preventDefault()
-     })
-     // $(this).on('click')
+    var rightDisabled=$(this).attr('rightDisabled')
+    if (rightDisabled==0||rightDisabled==undefined){
+      hi=$(this)
+      $('button#reactions').css({"background":"url(images/reactions/released.png) no-repeat","backgroundSize":"100% 100%"})
+      var irow=$('div.grid-rows')
+      hit_row=$(this).parent().index('.grid-rows')
+      hit_column=$(this).index()
+      // console.log($(this).parent().index())
+      count_temp=$(this).text()
+      var img_text=""
+      if (count_temp==""){
+        showAdjacentBlanks(rows,columns,yo,cell,hit_row,hit_column)
+        img_text="numbers/0"
+      }
+      else if (count_temp > 0){
+        img_text="numbers/"+count_temp
+        // $(this).css({})
+      }else if (count_temp=="*"){
+        showAllMines(rows,columns,yo,cell)
+        img_text="boxes/redmine"
+      }
+       $(this).css({"background":"url(images/"+img_text+".png) no-repeat","backgroundSize":"100% 100%"})
+       // $(this).off('click')
+        $(this).attr('leftDisabled',1)
+       $(this).click(function(argument) {
+          argument.preventDefault()
+       })
+       // $(this).on('click')
+     }
   })
   $('button#reactions').mousedown(function(event){
     // event.preventDefault()
