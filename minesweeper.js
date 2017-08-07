@@ -227,7 +227,7 @@ function designBlank(rows,columns,mines_no){
   $('main > div > div')[0].id="game-container"
   $('div#game-container').css({
     "display":"flex",
-    "width":"59%",
+    "width":columns*29+"px",
     "justify-content":"space-between",
     "flex-direction":"column",
     "margin-top":"30px",
